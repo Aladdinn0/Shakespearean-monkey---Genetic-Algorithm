@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 
+/*
 class DNA {
     private:
         std::vector<char> genes;
@@ -27,17 +28,18 @@ class DNA {
             fitness = score / target.size();
         }
 };
-
+*/
 // 3. THE GLOBALS AND SETUP
 
 std::string target = "to be or not to be";
-std::vector<DNA> population;
+// std::vector<DNA> population;
 
 int main() {
 
     std::string a = "salam";
 
     std::cout << a[2] << "\n";
+    std::cout << "Cavab: " << 4.0/5.0 << "\n";
 
     return 0;
 }

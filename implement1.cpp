@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cmath>
 #include <raylib.h>
 
 using namespace std;
@@ -37,16 +38,30 @@ class DNA {
             fitness = (float)score / (float)target.size();
         }
 
-        int getFitness(){
+        float getFitness(){
             return fitness;
         }
+
+        DNA crossover(const DNA& partner){
+            DNA child(genes.size());
+
+            int midpoint = GetRandomValue(0, genes.size());
+            for (int i = 0; i < genes.size(); i++) {
+                if (i < midpoint) {
+                    child.genes[i] = genes[i];
+                } else {
+                    child.genes[i] = partner.genes[i];
+                }
+            }
+            return child;
+    }           
 };
 
 // 3. THE GLOBALS AND SETUP
-
+float mutationRate = 0.01;
 std::string target = "to be or not to be";
 std::vector<DNA> population;
-std::vector<std::string> matingPool;
+std::vector<DNA> matingPool;
 void setup() {
     for (int i = 0; i < 100; i++) {
         population.push_back(DNA(18));
@@ -59,14 +74,22 @@ int main() {
     // SetRandomSeed(42);
 
     DNA myMonkey(18);
-
     setup();
 
     while(!WindowShouldClose()) {
+        // Calculate fitness of each monkey at each generation
+        int indexA = GetRandomValue(0, matingPool.size() - 1);
+        int indexB = GetRandomValue(0, matingPool.size() - 1);
+
+        DNA parentA = matingPool[indexA];
+        DNA parentB = matingPool[indexB];
 
         for (DNA& phrase: population) {
-            int n = (phrase.getFitness()) * 100;
-            phrase.calculateFitness(target);
+            int n = std::floor((phrase.getFitness()) * 100);
+            for (int i = 0; i <= n; i++) { // fitness score sayi qeder phrase mating poola elave olunacaq
+                matingPool.push_back(phrase);
+            }
+            // phrase.calculateFitness(target);
         }
 
         BeginDrawing();
@@ -96,6 +119,5 @@ int main() {
         EndDrawing();
     }
     CloseWindow();
-
     return 0;
 }
