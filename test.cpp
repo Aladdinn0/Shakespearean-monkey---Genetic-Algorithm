@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <random>
+#include <raylib.h>
 
 /*
 class DNA {
@@ -33,13 +35,39 @@ class DNA {
 
 std::string target = "to be or not to be";
 // std::vector<DNA> population;
-
 int main() {
+    srand(time(NULL));
+    InitWindow(1000, 1000, "What hte Heck?");
+    // float a = GetRandomValue(0.0,1.0);
+    float a = rand();
+    float b = RAND_MAX;
+    std::vector<float> values; 
+    while(!WindowShouldClose()) {
 
-    std::string a = "salam";
+       if (IsKeyPressed(KEY_SPACE)) {
+            values.clear();
+            for (int i = 0; i < 30; i++) {
+                values.push_back((float)rand() / RAND_MAX);
+            }
+        }
 
-    std::cout << a[2] << "\n";
-    std::cout << "Cavab: " << 4.0/5.0 << "\n";
+        BeginDrawing();
+        ClearBackground(LIGHTGRAY);
+
+        for (int i = 0; i < values.size(); i++) {
+            float c = values[i];
+
+            if (c < 0.1f) {
+                DrawText(TextFormat("%.5f True", c), 100, i * 30 + 50, 20, GREEN);
+            } else {
+                DrawText(TextFormat("%.5f False", c), 100, i * 30 + 50, 20, RED);
+            }
+        }
+
+        EndDrawing();
+    }
+    CloseWindow();
+
 
     return 0;
 }
