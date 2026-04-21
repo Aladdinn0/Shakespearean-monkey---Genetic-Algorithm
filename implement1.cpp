@@ -70,11 +70,17 @@ class DNA {
 
 // 3. THE GLOBALS AND SETUP
 float mutationRate = 0.01;
-int populatoinSize = 100;
+int populatoinSize = 125;
 int generation = 0;
 bool isFinished = false;
 std::string target = "to be or not to be";
 std::vector<DNA> population;
+
+
+Color bgColor = { 40, 42, 54, 255 };
+Color normalColor = { 98, 114, 164, 255 };
+Color championColor = { 80, 250, 123, 255 };
+Color headerColor = { 248, 248, 242, 255 };
 
 // Step 1: Initialization
 void setup() {
@@ -85,6 +91,7 @@ void setup() {
 
 int main() {
     srand(time(NULL));
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1920, 1080, "Monkey!");
     SetTargetFPS(60);
     // SetRandomSeed(42);
@@ -96,6 +103,10 @@ int main() {
 
     while(!WindowShouldClose()) {
         std::vector<DNA> matingPool;
+
+        if (IsKeyPressed(KEY_F11)) {
+            ToggleFullscreen();
+        }
 
         // Step 2: Selection
         // Step 2a: Calculate the fitness score.
@@ -137,38 +148,39 @@ int main() {
         }
 
 
-        // Finding the best match 
+        // Finding the best phrase and index
         float bestPhraseScore = population[0].getFitness();
-        DNA bestPhrase = population[0];
-        for (DNA& phrase: population) {
-            if (phrase.getFitness() > bestPhraseScore) {
-                bestPhraseScore = phrase.getFitness();
-                bestPhrase = phrase;
+        DNA bestPhrase = population[0]; 
+        int bestIndex = 0; 
+        
+        for (int i = 0; i < population.size(); i++) {
+            if (population[i].getFitness() > bestPhraseScore) {
+                bestPhraseScore = population[i].getFitness();
+                bestPhrase = population[i];
+                bestIndex = i; // Save the seat number!
             }
         }
 
         BeginDrawing();
-        ClearBackground(DARKGRAY);
+        ClearBackground(bgColor);
 
         std::vector<char> bestGenes = bestPhrase.getGenes();
         std::string bestText(bestGenes.begin(), bestGenes.end());
 
-        Vector2 position0 = {100, 150};
-        Vector2 position1 = {100, 200};
-        Vector2 position2 = {500, 500};
-        Vector2 position3 = {500, 550};
-        Vector2 position4 = {500, 600};
-        Vector2 position5 = {500, 650};
+        DrawFPS(10, 5);
+        DrawTextEx(font, TextFormat("Population size: %d", populatoinSize), Vector2{10, 30}, 25, 2, headerColor);
+        DrawTextEx(font, TextFormat("Generation: %d", generation), Vector2{10, 60}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Best Score: %.2f", bestPhraseScore), Vector2{400, 30}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Mutation Rate: %.2f", mutationRate), Vector2{400, 60}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Best Monkey: %s", bestText.c_str()), Vector2{900, 30}, 40, 2, headerColor);
 
-        DrawFPS(100, 100);
-        DrawTextEx(font, "Raylib is running!", position0, 20, 2, RAYWHITE);
-        DrawTextEx(font, TextFormat("Population size: %d", populatoinSize), position1, 20, 2, RAYWHITE);
-        DrawTextEx(font, TextFormat("Generation: %d", generation),  position2, 20, 2, RAYWHITE);
-        // DrawText(TextFormat("Phrase: %d", generation), 500, 500, 20, RAYWHITE);
-        DrawTextEx(font, TextFormat("Best Score: %f", bestPhraseScore),  position3, 20, 2, RAYWHITE);
-        DrawTextEx(font, TextFormat("Best Monkey: %s", bestText.c_str()),  position4, 20, 2, RAYWHITE);
+        DrawLine(0, 150, 1920, 150, RAYWHITE);
+        DrawLine(1, 1, 1920, 0, RAYWHITE);
+        DrawLine(1, 1, 1, 1079, RAYWHITE);
+        DrawLine(1919, 1, 1919, 1079, RAYWHITE);
+        DrawLine(1, 1079, 1919, 1079, RAYWHITE);
+
         //DrawText(TextFormat("Best Monkey: %s", bestPhrase.c_str()), 500, 600, 20, RAYWHITE);
-        DrawTextEx(font, TextFormat("Mutation Rate: %.2f", mutationRate),  position5, 20, 2, RAYWHITE);
         
 
         for (int i = 0; i < population.size(); i++) {
@@ -178,13 +190,19 @@ int main() {
             // 2. Convert the vector of characters into a C++ string
             std::string geneText(currentGenes.begin(), currentGenes.end());
 
-            // 3. Calculate the Y position so they don't draw on top of each other
-            // Monkey 0: Y = 200. Monkey 1: Y = 230. Monkey 2: Y = 260.
-            int yPosition = 250 + (i * 30);
+            int xPosition = 130 + ((i / 25) * 350); 
+            int yPosition = 200 + ((i % 25) * 30); 
+            
+            // Vector2 is required by DrawTextEx for position
+            Vector2 position = { (float)xPosition, (float)yPosition };
 
-            // 4. Draw the text to the screen!
-            // Note: Raylib requires '.c_str()' to read C++ strings properly
-            DrawText(geneText.c_str(), 100, yPosition, 20, RAYWHITE);
+            // 3. Set the color based on our bestIndex
+            Color textColor = normalColor;
+            if (i == bestIndex) {
+                textColor = championColor;
+            }
+
+            DrawTextEx(font, geneText.c_str(), position, 24, 2, textColor);           
         }
 
         EndDrawing();
