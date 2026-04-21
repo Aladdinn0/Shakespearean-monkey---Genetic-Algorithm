@@ -4,6 +4,7 @@
 #include <cmath>
 #include <time.h>
 #include <raylib.h>
+// #include <rtext>
 
 using namespace std;
 
@@ -68,9 +69,8 @@ class DNA {
 };
 
 // 3. THE GLOBALS AND SETUP
-// FONT font = LoadFont("resources/myfont.ttf");
 float mutationRate = 0.01;
-int populatoinSize = 15000;
+int populatoinSize = 100;
 int generation = 0;
 bool isFinished = false;
 std::string target = "to be or not to be";
@@ -78,34 +78,31 @@ std::vector<DNA> population;
 
 // Step 1: Initialization
 void setup() {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < populatoinSize; i++) {
         population.push_back(DNA(target.size()));
     }
 }
 
 int main() {
     srand(time(NULL));
-    InitWindow(1920, 1080, "First Run!");
+    InitWindow(1920, 1080, "Monkey!");
     SetTargetFPS(60);
     // SetRandomSeed(42);
 
-    DNA myMonkey(target.size());
+    Font font = LoadFont("Consolas-Regular.ttf");
+
+    // DNA myMonkey(target.size());
     setup();
 
     while(!WindowShouldClose()) {
         std::vector<DNA> matingPool;
 
         // Step 2: Selection
-        // Step 2a: Calculate the firness score.
+        // Step 2a: Calculate the fitness score.
         // Calculate fitness of each monkey at each generation
 
         if (!isFinished) {
-            for (DNA& phrase: population) {
-                phrase.calculateFitness(target);
-                if (phrase.getFitness() >= 1.0f ){
-                    isFinished = true;
-                }
-            }
+
 
             // Step 2b: Build the mating pool.
             for (DNA& phrase: population) {
@@ -128,6 +125,14 @@ int main() {
                     population[i] = child;
                 }
             }
+            
+            for (DNA& phrase: population) {
+                phrase.calculateFitness(target);
+                if (phrase.getFitness() >= 1.0f ){
+                    isFinished = true;
+                }
+            }
+
             generation++;
         }
 
@@ -148,16 +153,22 @@ int main() {
         std::vector<char> bestGenes = bestPhrase.getGenes();
         std::string bestText(bestGenes.begin(), bestGenes.end());
 
-        // DrawText(DrawFPS(), 100, 100, 30, GREEN);B
+        Vector2 position0 = {100, 150};
+        Vector2 position1 = {100, 200};
+        Vector2 position2 = {500, 500};
+        Vector2 position3 = {500, 550};
+        Vector2 position4 = {500, 600};
+        Vector2 position5 = {500, 650};
+
         DrawFPS(100, 100);
-        DrawText("Raylib is running!", 100, 150, 20, RAYWHITE);
-        DrawText(TextFormat("Population size: %d", population.size()), 100, 200, 20, RAYWHITE);
-        DrawText(TextFormat("Generation: %d", generation), 500, 500, 20, RAYWHITE);
+        DrawTextEx(font, "Raylib is running!", position0, 20, 2, RAYWHITE);
+        DrawTextEx(font, TextFormat("Population size: %d", populatoinSize), position1, 20, 2, RAYWHITE);
+        DrawTextEx(font, TextFormat("Generation: %d", generation),  position2, 20, 2, RAYWHITE);
         // DrawText(TextFormat("Phrase: %d", generation), 500, 500, 20, RAYWHITE);
-        DrawText(TextFormat("Best Score: %f", bestPhraseScore), 500, 550, 20, RAYWHITE);
-        DrawText(TextFormat("Best Monkey: %s", bestText.c_str()), 500, 600, 20, RAYWHITE);
+        DrawTextEx(font, TextFormat("Best Score: %f", bestPhraseScore),  position3, 20, 2, RAYWHITE);
+        DrawTextEx(font, TextFormat("Best Monkey: %s", bestText.c_str()),  position4, 20, 2, RAYWHITE);
         //DrawText(TextFormat("Best Monkey: %s", bestPhrase.c_str()), 500, 600, 20, RAYWHITE);
-        DrawText(TextFormat("Mutation Rate: %.2f", mutationRate), 500, 650, 20, RAYWHITE);
+        DrawTextEx(font, TextFormat("Mutation Rate: %.2f", mutationRate),  position5, 20, 2, RAYWHITE);
         
 
         for (int i = 0; i < population.size(); i++) {
@@ -178,6 +189,7 @@ int main() {
 
         EndDrawing();
     }
+    UnloadFont(font);
     CloseWindow();
     return 0;
 }
