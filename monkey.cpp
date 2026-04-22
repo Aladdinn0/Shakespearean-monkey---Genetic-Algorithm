@@ -96,12 +96,15 @@ int main() {
     SetTargetFPS(60);
     // SetRandomSeed(42);
 
+    double startTime = GetTime();
+    double elapsedTime = 0;
     Font font = LoadFont("Consolas-Regular.ttf");
 
     // DNA myMonkey(target.size());
     setup();
 
     while(!WindowShouldClose()) {
+        double currentTime = GetTime() - startTime;
         std::vector<DNA> matingPool;
 
         if (IsKeyPressed(KEY_F11)) {
@@ -139,14 +142,15 @@ int main() {
             
             for (DNA& phrase: population) {
                 phrase.calculateFitness(target);
+                elapsedTime = GetTime() - startTime;
                 if (phrase.getFitness() >= 1.0f ){
                     isFinished = true;
+                    elapsedTime = GetTime() - startTime;
                 }
             }
 
             generation++;
         }
-
 
         // Finding the best phrase and index
         float bestPhraseScore = population[0].getFitness();
@@ -168,10 +172,12 @@ int main() {
         std::string bestText(bestGenes.begin(), bestGenes.end());
 
         DrawFPS(10, 5);
-        DrawTextEx(font, TextFormat("Population size: %d", populatoinSize), Vector2{10, 30}, 25, 2, headerColor);
-        DrawTextEx(font, TextFormat("Generation: %d", generation), Vector2{10, 60}, 20, 2, headerColor);
-        DrawTextEx(font, TextFormat("Best Score: %.2f", bestPhraseScore), Vector2{400, 30}, 20, 2, headerColor);
-        DrawTextEx(font, TextFormat("Mutation Rate: %.2f", mutationRate), Vector2{400, 60}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Population size: %d", populatoinSize), Vector2{20, 30}, 25, 2, headerColor);
+        DrawTextEx(font, TextFormat("Generation: %d", generation), Vector2{20, 70}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Time: %.2f", elapsedTime), Vector2{20, 110}, 20, 2, headerColor);
+
+        DrawTextEx(font, TextFormat("Best Score: %.2f", bestPhraseScore), Vector2{250, 70}, 20, 2, headerColor);
+        DrawTextEx(font, TextFormat("Mutation Rate: %.2f", mutationRate), Vector2{250, 110}, 20, 2, headerColor);
         DrawTextEx(font, TextFormat("Best Monkey: %s", bestText.c_str()), Vector2{900, 30}, 40, 2, headerColor);
 
         DrawLine(0, 150, 1920, 150, RAYWHITE);
